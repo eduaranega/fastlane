@@ -248,6 +248,7 @@ module FastlaneCore
       UI.verbose(@transporter_executor.build_download_command(@user, 'YourPassword', app_id, dir))
 
       result = @transporter_executor.execute(command, ItunesTransporter.hide_transporter_output?)
+      return result if Helper.is_test?
 
       itmsp_path = File.join(dir, "#{app_id}.itmsp")
       successful = result && File.directory?(itmsp_path)
