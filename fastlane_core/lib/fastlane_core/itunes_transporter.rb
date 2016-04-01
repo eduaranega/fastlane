@@ -245,18 +245,20 @@ module FastlaneCore
 
       UI.message("Going to download app metadata from iTunes Connect")
       command = @transporter_executor.build_download_command(@user, @password, app_id, dir)
-      UI.verbose(@transporter_executor.build_download_command(@user, 'YourPassword', app_id, dir)) if $verbose
+      UI.verbose(@transporter_executor.build_download_command(@user, 'YourPassword', app_id, dir))
 
       result = @transporter_executor.execute(command, ItunesTransporter.hide_transporter_output?)
 
       itmsp_path = File.join(dir, "#{app_id}.itmsp")
-      if result and File.directory? itmsp_path
-        UI.success("Successfully downloaded the latest package from iTunes Connect.")
+      successful = result && File.directory?(itmsp_path)
+
+      if successful
+        UI.success("✅ Successfully downloaded the latest package from iTunes Connect to #{itmsp_path}")
       else
         handle_error(@password)
       end
 
-      result
+      successful
     end
 
     # Uploads the modified package back to iTunes Connect
@@ -273,7 +275,7 @@ module FastlaneCore
 
       command = @transporter_executor.build_upload_command(@user, @password, dir)
 
-      UI.verbose(@transporter_executor.build_upload_command(@user, 'YourPassword', dir)) if $verbose
+      UI.verbose(@transporter_executor.build_upload_command(@user, 'YourPassword', dir))
 
       result = @transporter_executor.execute(command, ItunesTransporter.hide_transporter_output?)
 
@@ -295,7 +297,10 @@ module FastlaneCore
     def handle_error(password)
       # rubocop:disable Style/CaseEquality
       unless /^[0-9a-zA-Z\.\$\_]*$/ === password
-        UI.error("Password contains special characters, which may not be handled properly by iTMSTransporter. If you experience problems uploading to iTunes Connect, please consider changing your password to something with only alphanumeric characters.")
+        UI.error([
+          "Password contains special characters, which may not be handled properly by iTMSTransporter.",
+          "If you experience problems uploading to iTunes Connect, please consider changing your password to something with only alphanumeric characters."
+        ].join(' '))
       end
       # rubocop:enable Style/CaseEquality
       UI.error("Could not download/upload from iTunes Connect! It's probably related to your password or your internet connection.")
