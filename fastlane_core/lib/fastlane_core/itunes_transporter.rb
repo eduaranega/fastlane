@@ -26,8 +26,6 @@ module FastlaneCore
     def execute(command, hide_output)
       return command if Helper.is_test?
 
-      UI.message("Executing command:\n#{command}")
-
       @errors = []
       @warnings = []
 
@@ -274,8 +272,6 @@ module FastlaneCore
       UI.success("This might take a few minutes, please don't interrupt the script")
 
       command = @transporter_executor.build_upload_command(@user, @password, dir)
-
-      UI.message("Command is:\n#{command}")
 
       UI.verbose(@transporter_executor.build_upload_command(@user, 'YourPassword', dir)) if $verbose
 
